@@ -1,0 +1,8 @@
+@startuml
+skinparam titleBackgroundColor Aqua-CadetBlue
+title Icap对ssh协议处理的时序图
+SshClient -[#red]> Sslproxy: 收到来自客户端的数据
+Sslproxy -> IcapServer: 封装数据为ICAP协议，发送给ICAP服务端
+IcapServer -> Sslproxy: 回复204
+Sslproxy -[#red]> SshServer: 发送客户端的数据给服务端
+@enduml

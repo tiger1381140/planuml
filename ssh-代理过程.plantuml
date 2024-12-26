@@ -1,0 +1,27 @@
+@startuml
+skinparam titleBackgroundColor Aqua-CadetBlue
+title SSH中间人工作过程的时序图
+Client -[#green]> Sslproxy : Syn
+Sslproxy -[#green]> Client : Syn + Ack
+Client -[#green]> Sslproxy : Ack
+
+Sslproxy -[#red]> Server : Syn
+Server -[#red]> Sslproxy : Syn + Ack
+Sslproxy -[#red]> Server : Ack
+Sslproxy -[#red]> Server : 调用ssh_kex_dst,完成与服务端的ssh握手
+Sslproxy -[#green]> Client : 调用ssh_kex_src,完成与客户端的ssh握手
+
+Client -[#green]> Sslproxy : SSH Data
+note over Sslproxy 
+   将收到的数据，通过Icap协议发送给SSDF进行扫描
+   待送扫结果,决定是否进行发送给Server端 
+end note
+Sslproxy -[#green]-> Server : SSH Data
+
+Server -[#red]> Sslproxy : SSH Data
+note over Sslproxy 
+   将收到的数据，通过Icap协议发送给SSDF进行扫描
+   待送扫结果，决定是否进行发送给Server端 
+end note
+Sslproxy -[#red]-> Client: SSH Data
+@enduml

@@ -1,0 +1,29 @@
+@startuml
+floating note left
+    icap数据被动读取, 由libevent触发
+end note
+:被动读数据\n由icapBaseReadCb完成;
+#lightGreen:if (icap数据是否完整?) is (<color:red>yes) then
+    :设置icap为写阶段;
+    switch (icap code ?)
+        case (200)
+            partition "**同步处理**localSshRead200" {
+                :清空scaning、sanned队列数据;
+                :构造channel eof数据，发送给ssh terminal;
+            }
+        case (204)
+            partition "**同步处理**localSshRead204" {
+                #lightBlue:发送sanned队列数据\n由icapLocalSshBypassBody完成;
+                #lightBlue:发送数据给icap server\n由localSshWriteBody完成;
+            }
+        case (100)
+            partition "**同步处理**localSshRead100" {
+                #lightGreen:if (数据流切换方向?) is (<color:red>yes) then
+                    #lightBlue:通知icap server方向已经切换\n由localSshWriteDirection完成;
+                else (no)
+                    #lightBlue:发送数据给icap server\n由localSshWriteBody完成;
+                endif
+            }
+    endswitch
+endif
+@enduml

@@ -1,0 +1,13 @@
+@startuml
+left to right direction
+actor (一条SSH连接) as one_conn
+note left
+    ssh协议规范,每条ssh连接会出现多个channel
+    一个channel对应一个icap连接
+    ssh : icap = 1 : N
+end note
+one_conn --> (icap连接0) : channel0 
+one_conn --> (icap连接1) #line:red;line.bold;text:red : channel1
+one_conn --> (icap连接2) #green;line.dashed;text:green : channel2
+one_conn --> (icap连接3) #blue;line.dotted;text:blue : channel3
+@enduml

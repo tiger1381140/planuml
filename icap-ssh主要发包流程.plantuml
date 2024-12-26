@@ -1,0 +1,31 @@
+@startuml
+floating note left
+    SSH数据主动去送扫，由sslproxy模块主动调起
+end note 
+:主动写数据\n由icapLocalSshWriteBody完成;
+:ssh_buffer push到相应scaning中;
+#lightGreen:if (icap连接已经建立?) is (<color:red>yes) then
+    #lightGreen:if (数据流切换方向?) is (<color:red>yes) then
+        partition "**同步处理**localSshWriteDirection" {
+            if (icap为写阶段?) then (yes)
+                :通知ICAP服务端数据流方向切换;
+                :设置icap为读阶段;
+            endif
+        }
+    else (no)
+        partition "**同步处理**localSshWriteBody" {
+            if (icap为写阶段?) then (yes)
+                :数据发送给ICAP服务端;
+                :copy数据到scaned队列;
+                :设置icap为读阶段;
+            endif
+        }
+    endif
+else (no)
+    :设置有数据待扫描;
+    partition "**异步处理**icapBaseConnectCb" {
+        #lightBlue:发送数据给icap server\n由localSshWriteBody完成;
+    }
+
+endif
+@enduml
